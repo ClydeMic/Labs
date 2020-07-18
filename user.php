@@ -8,6 +8,9 @@
   	private $city_name;
     private $username;
 	private $password;
+	private $prof_img;
+	private $utc_timestamp;
+	private $time_zone_offset;
 /*We can use the class constructor to initialize our values 
 member variables cannot be instantiated from elsewhere; They private*/
   	function __construct (){
@@ -80,6 +83,36 @@ member variables cannot be instantiated from elsewhere; They private*/
 		return $this->city_name;
 	}
 
+	//prof_img setter
+	public function setProfileImage($prof_img){
+		$this->prof_img = $prof_img;
+	}
+	   
+	//prof_img getter
+	public function getProfileImage(){
+		return $this->prof_img;
+	}
+		
+	//utc_timestamp setter
+	public function setUtcTimestamp($utc_timestamp){
+	 $this->utc_timestamp = $utc_timestamp;
+	}
+
+	//utc_timestamp getter
+	public function getUtcTimestamp(){
+		return $this->utc_timestamp;
+	}
+
+	//Offset setter
+	public function setOffset($time_zone_offset){
+		$this->time_zone_offset = $time_zone_offset;
+	}
+
+	//utc_timestamp getter
+	public function getOffset(){
+		return $this->time_zone_offset;
+	}
+
 
       public function save(){
       	$db = mysqli_connect("localhost","root","","btc3205");
@@ -92,7 +125,10 @@ member variables cannot be instantiated from elsewhere; They private*/
 		$this->hashPassword();
 		$pass=$this->password;
 
-  		$res = mysqli_query($db,"INSERT INTO user(first_name,last_name,user_city,username,password) VALUES ('$fn','$ln','$city','$uname','$pass')") OR die("Error".mysqli_error($db));
+		$utc = $this->utc_timestamp;
+		$offset = $this->time_zone_offset;
+
+  		$res = mysqli_query($db,"INSERT INTO user(first_name,last_name,user_city,username,password,utc,offset) VALUES ('$fn','$ln','$city','$uname','$pass','$utc','$offset')") OR die("Error".mysqli_error($db));
   		return $res;
   	}
 
@@ -134,14 +170,34 @@ member variables cannot be instantiated from elsewhere; They private*/
      	return null;
 
 	 }
+
+	 public function isUserExist()
+	 {
+		$db = mysqli_connect("localhost","root","","btc3205");
+		 $con = new DBConnector;
+ 
+		 $res = mysqli_query($db, "SELECT * FROM user") or die("Error: ".mysqli_error());
+ 
+		// $con->closeDatabase();
+ 
+		 while ($row = $res->fetch_assoc()) {
+			 if ($this->username == $row['username']) {
+				 return true;
+			 }
+		 }
+		 return false;
+	 }
+ 
 	 
 	 public function validateForm(){
 		  //Return true if the values are not empty
 		  $fn = $this->first_name;
 		  $ln = $this->last_name;
 		  $city = $this->city_name;
+		  $uname= $this->username;
+		  $pass=$this->password;
  
-		  if($fn == "" || $ln == "" || $city == ""){
+		  if($fn == "" || $ln == "" || $city == "" || $uname == "" || $pass=""){
 			  return false;
 		  }
 		   return true;
